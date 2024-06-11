@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alert Parameter</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .fixed-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 9999; /* убедитесь, что кнопка на переднем плане */
+            background-color: transparent;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 5vh;
+            border: 2px solid white;
+            transition: .5s;
+        }
+
+        .fixed-button:hover {
+            background-color: rgb(49, 49, 49);
+            transition: .5s;
+        }
+
+        .fixed-text {
+            position: fixed;
+            top: 5%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5vw;
+            font-weight: bold;
+            text-align: center;
+            font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            color: rgb(250, 250, 250);
+            text-shadow: 10px 4px 10px black;
+        }
+    </style>
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@v0.149.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@v0.149.0/examples/jsm/"
+          }
+        }
+      </script>
+</head>
+<body>
+    <div id="title" class="fixed-text">Титульный текст</div>
+    <a href="elements.html">
+    <button class="fixed-button"><</button>
+</a>
+
+
+
+<script type="module" src="view_model.js">
+</script>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const name = urlParams.get('title');
+    document.getElementById("title").innerHTML = name;
+</script>
+</body>
+</html>
