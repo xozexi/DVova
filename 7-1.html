@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Драг и пересечение</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.5.1/snap.svg-min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+  <style>
+    #svgout {
+      width: 800px;
+      height: 600px;
+      border: 1px solid #ccc;
+      margin: 0 auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <svg id="svgout"></svg>
+
+  <script>
+    var s = Snap("#svgout");
+    var svgWidth = 800;
+    var svgHeight = 600;
+
+    // Создаем стакан
+    var glass = s.rect(300, 100, 200, 400).attr({
+        fill: "none",
+        stroke: "#000",
+        strokeWidth: 2
+    });
+
+    // Создаем шары
+    var balls = [
+        {name: "Соль", color: "red", x: 50, y: 50},
+        {name: "Песок", color: "yellow", x: 50, y: 150},
+        {name: "Вода", color: "blue", x: 50, y: 250}
+    ];
+
+    var substances = {соль: false, песок: false, вода: false};
+    var ballElements = balls.map(function(ball) {
+        var group = s.group();
+        var circle = group.circle(ball.x, ball.y, 30).attr({fill: ball.color});
+        var text = group.text(ball.x, ball.y, ball.name).attr({
+            fill: "#fff",
+            textAnchor: "middle",
+            dy: ".3em"
+        });
+        group.drag();
+        group.data("name", ball.name);
+        return group;
+    });
+
+    function checkSubstances() {
+        var bbox = glass.getBBox();
+        ballElements.forEach(function(ball) {
+            var ballBBox = ball.getBBox();
+            if (Snap.path.isBBoxIntersect(bbox, ballBBox)) {
+                var name = ball.data("name");
+                substances[name.toLowerCase()] = true;
+                console.log(substances);
+                ball.undrag();
+            }
+        });
+
+        if (substances.соль && substances.песок && substances.вода) {
+            if (!document.getElementById('mixButton')) {
+                console.log('mixButton');
+                var button = s.rect(350, 520, 100, 50).attr({fill: "#0f0", cursor: "pointer"});
+                var buttonText = s.text(400, 545, "Перемешать").attr({
+                    fill: "#000",
+                    textAnchor: "middle",
+                    dy: ".3em",
+                    pointerEvents: "none"
+                });
+                var buttonGroup = s.group(button, buttonText).attr({id: 'mixButton'});
+                buttonGroup.click(mixSubstances);
+            }
+        }
+    }
+
+    function mixSubstances() {
+        glass.attr({fill: "#ccc"});
+        setTimeout(function() {
+            s.rect(300, 470, 200, 30).attr({fill: "brown"});
+        }, 10000);
+    }
+
+    setInterval(checkSubstances, 1000);
+</script>
+</body>
+</html>

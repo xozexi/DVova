@@ -5,13 +5,14 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const urlParams = new URLSearchParams(window.location.search);
 const parameter = urlParams.get('param');
+const mdl_size = urlParams.get('mdl_size');
 // Создание сцены
 var scene = new THREE.Scene();
 // Создаем помощник осей координат
 // const axesHelper = new THREE.AxesHelper(5); // Длина осей: 5 единиц
 // Добавляем помощник на сцену
 // scene.add(axesHelper);
-scene.background = new THREE.Color(0x171717); // Здесь 0xffcc66 - это RGB код цвета, вы можете выбрать другой цвет, изменяя значение
+scene.background = new THREE.Color(0x3c3e56); // Здесь 0xffcc66 - это RGB код цвета, вы можете выбрать другой цвет, изменяя значение
 // Создание камеры
 var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight,0.001, 1000);
 camera.position.z = 0.3;
@@ -41,7 +42,7 @@ loader.load(
     function (gltf) {
         // Получение сцены из загруженной модели
         var model = gltf.scene;
-
+        model.scale.set(mdl_size, mdl_size, mdl_size);
         // Добавление модели на сцену
         scene.add(model);
 
@@ -68,7 +69,10 @@ loader.load(
         const light6 = new THREE.PointLight( 0xffffff, 1, 20 );
         light6.position.set( 0, 0.2, 0.3 );
         scene.add( light6 );
-        
+
+// Добавление глобального яркого освещения
+const ambientLight = new THREE.AmbientLight(0xffffff, 1); // Белый свет с интенсивностью 1
+scene.add(ambientLight);
     },
 
     // Функция, вызываемая во время загрузки
