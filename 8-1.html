@@ -15,6 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <style>
         #svgout {
+            width: 800px;
             height: 600px;
             border: 3px solid #fff;
             border-radius: 5px;
@@ -110,146 +111,69 @@
         var s = Snap("#svgout");
         var svgWidth = 800;
         var svgHeight = 600;
-        have_salt = false;
-        have_sand = false;
-        // Создаем стакан
-        var glass = s.rect(300, 100, 200, 400).attr({
-            fill: "none",
-            stroke: "#000",
-            zIndex: 0,
-            strokeWidth: 2
-        });
-        var rects = [];
-        // Создаем шары
-        var balls = [
-            { name: "Соль", color: "red", x: 50, y: 50 },
-            { name: "Песок", color: "yellow", x: 50, y: 150 },
-            { name: "Вода", color: "blue", x: 50, y: 250 }
-        ];
+        // Создаем холст Snap.svg
+        // Создаем шары и пробирки
+var balls = [
+    { name: "Лакмус", color: "#8A2BE2", x: 50, y: 50 },
+    { name: "Лакмус", color: "#8A2BE2", x: 50, y: 150 },
+];
 
-        var substances = { соль: false, песок: false, вода: false };
-        var ballElements = balls.map(function (ball) {
-            var group = s.group();
-            var circle = group.circle(ball.x, ball.y, 30).attr({ fill: ball.color });
-            var text = group.text(ball.x, ball.y, ball.name).attr({
-                fill: "#fff",
-                textAnchor: "middle",
-                dy: ".3em"
-            });
-            group.drag();
-            group.data("name", ball.name);
-            return group;
-        });
+var tubes = [
+    { name: "Пробирка 1", x: 350, y: 100 },
+    { name: "Пробирка 2", x: 550, y: 100 },
+];
 
-        function checkSubstances() {
-            var bbox = glass.getBBox();
-            ballElements.forEach(function (ball) {
-                var ballBBox = ball.getBBox();
-                if (Snap.path.isBBoxIntersect(bbox, ballBBox)) {
-                    var name = ball.data("name").toLowerCase();
-                    if (!substances[name]) {
-                        substances[name] = true;
-                        ball.remove();
-                        addSubstanceToGlass(name);
+var colors = ["#FF9D1B", "#4B44FF"];
+var used_color = [false, false];
+// Создаем элементы шаров
+var ballElements = balls.map(function (ball) {
+    var group = s.group();
+    var circle = group.circle(ball.x, ball.y, 30).attr({ fill: ball.color });
+    var text = group.text(ball.x, ball.y + 40, ball.name).attr({
+        fill: "#fff",
+        textAnchor: "middle",
+        dy: ".3em"
+    });
+    group.drag();
+    group.data("name", ball.name);
+    return group;
+});
+
+// Создаем элементы пробирок
+var tubeElements = tubes.map(function (tube) {
+    return s.rect(tube.x, tube.y, 50, 200).attr({
+        fill: "#F0F0F0",
+        stroke: "#000",
+        strokeWidth: 2
+    });
+});
+
+function checkSubstances() {
+    tubeElements.forEach(function (tube) {
+        var tubeBBox = tube.getBBox();
+        ballElements.forEach(function (ball) {
+            var ballBBox = ball.getBBox();
+            if (Snap.path.isBBoxIntersect(tubeBBox, ballBBox)) {
+                var name = ball.data("name");
+                if (name.includes("Лакмус")) {
+                    if (!used_color[0]) {
+                        used_color[0] = true;
+                        tube.attr({ fill: colors[0] });
                     }
+                    else{
+                        used_color[1] = true;
+                        tube.attr({ fill: colors[1] });
+                    }
+                    
                 }
-            });
-
-            if (substances.соль && substances.песок && substances.вода) {
-                if (!document.getElementById('mixButton')) {
-                    console.log('mixButton');
-                    var button = s.rect(350, 520, 100, 50).attr({ fill: "#0f0", cursor: "pointer" });
-                    var buttonText = s.text(400, 545, "Перемешать").attr({
-                        fill: "#000",
-                        textAnchor: "middle",
-                        dy: ".3em",
-                        pointerEvents: "none"
-                    });
-                    var buttonGroup = s.group(button, buttonText).attr({ id: 'mixButton' });
-                    buttonGroup.click(mixSubstances);
-                }
+                ball.remove();
             }
-        }
+        });
+    });
+}
 
-        function mixSubstances() {
-            rects.forEach(element => {
-                element.remove();
-            });
-            var gradient = s.gradient("l(0, 0, 0, 1)#87ceeb-#a52a2a");
+setInterval(checkSubstances, 1000);
 
-            // Применяем градиентную заливку к стакану
-            glass.attr({ fill: gradient });
-
-            setTimeout(function () {
-                var sedimentGradient = s.gradient("l(0, 0, 0, 1)rgba(135, 206, 235, 0.5)-rgba(165, 42, 42, 1)-rgba(165, 42, 42, 1)-rgba(165, 42, 42, 1)");
-                glass.attr({ fill: sedimentGradient });
-                // s.rect(300, 470, 200, 30).attr({ fill: "#a52a2a" });
-                for (var i = 1; i < 70; i++) {
-                    (function (i) {
-                        var val = 1 - i / 100;
-                        console.log(val);
-                        setTimeout(function () {
-                            var sedimentGradient = s.gradient("l(0, 0, 0, 1)rgba(135, 206, 235, 0.5)-rgba(165, 42, 42, " + Number(val.toFixed(2)) + ")-rgba(165, 42, 42, " + Number(val.toFixed(2)) + ")-rgba(165, 42, 42, 1)");
-                            glass.attr({ fill: sedimentGradient });
-                        }, i * 100);
-                    })(i);
-                }
-            }, 1);
-        }
-
-
-
-        function addSubstanceToGlass(name) {
-            var height, zIndex, color;
-            if (name === "вода") {
-                color = "#8A9EFF";
-                zIndex = 1;
-                if (have_sand || have_salt) {
-                    var rect = s.rect(300, 200, 200, 100).attr({
-                        fill: color,
-                        strokeWidth: 1,
-                        'z-index': zIndex
-                    });
-
-                    rects.push(rect);
-                    return
-                }
-                else {
-                    height = 280;
-                }
-
-            } else if (name === "соль") {
-                if (have_sand) {
-                    height = 100; // 25% от 400
-                }
-                else {
-                    height = 200; // 50% от 400
-                }
-                have_salt = true;
-                color = "#E5E5E5";
-                zIndex = 2;
-            } else if (name === "песок") {
-                if (have_salt) {
-                    height = 100; // 25% от 400
-                }
-                else {
-                    height = 200; // 50% от 400
-                }
-                have_sand = true;
-                color = "#983815"
-                zIndex = 3;
-            }
-            var rect = s.rect(300, 500 - height, 200, height).attr({
-                fill: color,
-
-                strokeWidth: 1,
-                'z-index': zIndex
-            });
-
-            rects.push(rect);
-        }
-
-        setInterval(checkSubstances, 1000);
     </script>
 
 </body>
